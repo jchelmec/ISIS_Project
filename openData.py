@@ -7,11 +7,18 @@ class LoadData:
         self.filename = filename
 
     def load(self):
+        """wczytanie pliku i usuniecie zdublowanych kolumn z czasem"""
         dane = pd.read_csv(self.filename, sep='\t')
         kanaly=(range(2,len(dane.columns),2))
         dane.drop(dane.columns[kanaly] ,axis=1, inplace = True)
-        print(dane.columns)
+        self.dane = dane
         return dane
+
+    def calcTimeMean(self):
+        """Kalkulacja średnich w czasie z przebiegów czasowych - próbka po probce
+            w celu wyznaczenia zastępczej odpowiedzi """
+
+    def split_hummer_data(self):
 
 
 class DataFragment:
@@ -23,7 +30,7 @@ class DataFragment:
         self.fig,self.ax = plt.subplots(figsize=(15,5))
         linie=[]
 
-        linie.append(self.ax.plot(dane['ACC01_Time*'],dane['ACC01'], label='1'))
+        linie.append(self.ax.plot(dane['ACC01_Time*'],dane.iloc[:,1:10], label='1'))
         # linie.append(self.ax.plot(dane['ACC01_Time*'], dane['ACC07'], label='2'))
 
         plt.title(label = 'Macedonia')
@@ -35,7 +42,7 @@ class DataFragment:
         self.napis_zakres = plt.figtext(0.9, 0.9, s='{:.2f}'.format(zakres), horizontalalignment='right')
         self.plt=plt
         cid = self.fig.canvas.mpl_connect('button_release_event',self.on_release)
-        self.plt.legend()
+        # self.plt.legend()
         self.plt.show()
 
     def on_release(self,event):
