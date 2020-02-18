@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.signal import hilbert
 import numpy as np
+from pathlib import Path
 import threading
 
 
@@ -30,7 +31,12 @@ class LoadData:
             new_filename = str(filename_obc[0]) + '_' + str(i) + str(filename_obc[1] + str(filename_obc[2]))
             dane_wybrane = self.dane.iloc[int(wymusz[0]):int(wymusz[1]),:]
             print ('Zapisuje plik: ' + new_filename)
-            pd.DataFrame.to_csv(dane_wybrane,new_filename, sep='\t', index=False)
+            try:
+                pd.DataFrame.to_csv(dane_wybrane,('out/' + new_filename), sep='\t', index=False)
+            except FileNotFoundError:
+                p = Path('out/')
+                p.mkdir(parents=True, exist_ok=True)
+                pd.DataFrame.to_csv(dane_wybrane, ('out/' + new_filename), sep='\t', index=False)
             i+=1
 
 
