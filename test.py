@@ -1,6 +1,16 @@
 import openData
+from pathlib import Path
 
-openData.DataFragment()
+direct = Path.glob('*.txt')
+print(direct)
+
+# filename = '001-B1.txt'
+# data_obj = openData.LoadData()
+# data_obj.load_from_file(filename)
+# data_obj.detect_hummer_data(channel=2, sens=0.3 , len_imp=2, pre=0.2, post=3.8, plot = False)
+# data_obj.save_to_file()
+
+
 
 
 # def is_pair(x):
