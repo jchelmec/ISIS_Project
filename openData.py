@@ -1,15 +1,14 @@
-import pandas as pd
-import matplotlib.pyplot as plt
-from scipy.signal import hilbert
-import numpy as np
 from pathlib import Path
-import threading
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from scipy.signal import hilbert
 
 
 class LoadData:
     def __init__(self):
         """"""
-
 
     def load_from_file(self, filename):
         """wczytanie pliku i usuniecie zdublowanych kolumn z czasem"""
@@ -38,12 +37,6 @@ class LoadData:
                 p.mkdir(parents=True, exist_ok=True)
                 pd.DataFrame.to_csv(dane_wybrane, ('out/' + new_filename), sep='\t', index=False)
             i+=1
-
-
-
-
-
-
 
     def setDane(self,dane):
         self.dane=dane
@@ -126,3 +119,55 @@ class LoadData:
         self.napis_zakres = plt.figtext(0.9, 0.9, s='{:.2f}'.format(zakres), horizontalalignment='right')
         print(self.napis_zakres)
 
+
+class Wypadkowa:
+    '''Klasa przygotowujaca dane do obliczania Inertancji'''
+    def __init__(self, filename):
+        self.filename = filename
+        self.dane = pd.read_csv(self.filename, sep='\t')
+
+    def wyborKanalow(self, kanaly: int):
+        """Odczyt wybranych kanałów"""
+        self.dane = self.dane.filter(self.dane.iloc[:, kanaly])
+        return self.dane
+
+    def wypadkowaKanalow(self, kanaly: int):
+        """Obliczanie wypadkowej wybranych kanałów kanalów"""
+
+        dane_wyp = self.dane.iloc[:, kanaly[0]]
+        for i in range(1, len(kanaly)):
+            dane_wyp += self.dane.iloc[:, kanaly[i]]
+        return dane_wyp / len(kanaly)
+
+    def skalowanieKanalow(self, kanal: int, mnoznik: int):
+        """Skalowanie kanałów"""
+        self.dane.iloc[:, kanal] *= mnoznik
+        return self.dane
+
+    def getData(self):
+        return self.dane
+
+    def save_to_file(self,dane_wyp):
+        """Zapisywanie danych z czujników po wyznaczeniu wypadkowych"""
+
+        filename_wyp = self.filename.rpartition('.')
+        new_filename = str(filename_wyp[0]) + '_wypad_' + str(filename_wyp[1] + str(filename_wyp[2]))
+        print('Zapisuje plik: ' + new_filename)
+        try:
+            pd.DataFrame.to_csv(dane_wyp, ('wyp/' + new_filename), sep='\t', index=False)
+        except FileNotFoundError:
+            p = Path('wyp/')
+            p.mkdir(parents=True, exist_ok=True)
+            pd.DataFrame.to_csv(dane_wyp, ('wyp/' + new_filename), sep='\t', index=False)
+
+class fileDir:
+    """Klasa odczytująca wszystkie pliki w katalogu"""
+
+    def __init__(self, ext):
+        """Konstruktor"""
+        self.ext = ext
+
+    def __iter__(self):
+        '''Iteracja po pilkach w katalogu'''
+        p = Path('.').glob(self.ext)
+        return p
